@@ -106,6 +106,8 @@ def unique_search_url_section(attr_dict):
         yarn_str = or_string(yarn_list)
         yarn_url_sect = 'weight={}&'.format(yarn_str)
         url_sect = yarn_url_sect + url_sect
+    if url_sect.endswith('&'):
+        url_sect = url_sect[:-1]
     return url_sect
 
 def full_search_url(url_sect):
