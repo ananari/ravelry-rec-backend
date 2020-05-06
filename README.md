@@ -5,3 +5,8 @@ This is an application that, given a Ravelry URL linking to a pattern, will prov
 ## Dependencies 
 
 The full list of dependencies is given in requirements.txt. 
+
+
+## Authorship
+
+k-christensen wrote most of the code in ravrec/views.py - I wrote the rest.
