@@ -112,4 +112,18 @@ def pattern_url_to_website_search_url(url):
 
 @csrf_exempt
 def process(request):
-  return JsonResponse({"result": pattern_url_to_website_search_url(request.POST['query'])})
+  query = None
+  try:
+      query = request.POST['query']
+  except:
+      return JsonResponse({"error": "request not received"})
+  else:
+      url = None
+      if not re.match(r"^((https?):\/\/)?(www\.)?ravelry\.com\/patterns\/library\/\S+$", query):
+          return JsonResponse({"error": "please enter a valid URL"})
+      try:
+          url = pattern_url_to_website_search_url(query)
+      except:
+          return JsonResponse({"error": "No data found for this pattern"})
+      else: 
+          return JsonResponse({"result": url})
