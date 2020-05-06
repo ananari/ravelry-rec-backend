@@ -48,10 +48,12 @@ def attrs_single_pattern(pattern):
     df = df.filter(regex = 'permalink$', axis = 1)
     atrib_dict = df.to_dict(orient='records')[0]
     cat_list = [v for v in atrib_dict.values() if v != 'categories']
-
-    attr_dict = {'yarn_weight':'-'.join(pattern['yarn_weight']['name'].split(' ')),
-    'pattern_attributes': [attr['permalink'] 
-    for attr in pattern['pattern_attributes']],
+    if 'yarn_weight' in pattern.keys():
+        yarn_weight = '-'.join(pattern['yarn_weight']['name'].split(' '))
+    else:
+        yarn_weight = None
+    attr_dict = {'yarn_weight':yarn_weight,
+    'pattern_attributes': [attr['permalink'] for attr in pattern['pattern_attributes']],
     'pattern_categories':cat_list}
     return attr_dict
 
@@ -82,15 +84,29 @@ def fit_and_attr_split(attr_list):
     return [fit_list, attribute_list]
 
 def unique_search_url_section(attr_dict):
-    yarn_list = create_yarn_list(attr_dict['yarn_weight'])
     attr_and_fit_list = fit_and_attr_split(attr_dict['pattern_attributes'])
     attr_list = attr_and_fit_list[1]
+    url_sect = None
+    if len(attr_list) > 0:
+        attr_str = or_string(attr_list)
+        url_sect = 'pa={}&'.format(attr_str)
     fit_list = attr_and_fit_list[0]
-    yarn_str = or_string(yarn_list)
-    attr_str = or_string(attr_list)
+    if len(fit_list) > 0:
+        fit_str = or_string(fit_list)
+        fit_url_sect = 'fit={}&'.format(fit_str)
+        if url_sect is not None:
+            url_sect = url_sect + fit_url_sect
+        else:
+            url_sect = fit_url_sect
     cat_str = or_string(attr_dict['pattern_categories'][1:])
-    fit_str = or_string(fit_list)
-    return 'weight={}&pa={}&pc={}&fit={}'.format(yarn_str,attr_str,cat_str, fit_str)
+    cat_url_sect = 'pc={}&'.format(cat_str)
+    url_sect = url_sect + cat_url_sect
+    if attr_dict['yarn_weight'] is not None:
+        yarn_list = create_yarn_list(attr_dict['yarn_weight'])
+        yarn_str = or_string(yarn_list)
+        yarn_url_sect = 'weight={}&'.format(yarn_str)
+        url_sect = yarn_url_sect + url_sect
+    return url_sect
 
 def full_search_url(url_sect):
     return 'https://api.ravelry.com/patterns/search.json?{}&sort=recently-popular&view=captioned_thumbs'.format(url_sect)
@@ -116,14 +132,14 @@ def process(request):
   try:
       query = request.POST['query']
   except:
-      return JsonResponse({"error": "request not received"})
+      return JsonResponse({"error": "request not received", "result": ""})
   else:
       url = None
       if not re.match(r"^((https?):\/\/)?(www\.)?ravelry\.com\/patterns\/library\/\S+$", query):
-          return JsonResponse({"error": "please enter a valid URL"})
+          return JsonResponse({"error": "please enter a valid URL", "result": ""})
       try:
           url = pattern_url_to_website_search_url(query)
       except:
-          return JsonResponse({"error": "No data found for this pattern"})
+          return JsonResponse({"error": "No data found for this pattern", "result": ""})
       else: 
-          return JsonResponse({"result": url})
+          return JsonResponse({"result": url, "error": ""})
