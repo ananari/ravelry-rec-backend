@@ -138,10 +138,10 @@ def process(request):
   else:
       url = None
       if not re.match(r"^((https?):\/\/)?(www\.)?ravelry\.com\/patterns\/library\/\S+$", query):
-          return JsonResponse({"error": "please enter a valid URL", "result": ""})
+          return JsonResponse({"error": "Please enter a valid URL.", "result": ""})
       try:
           url = pattern_url_to_website_search_url(query)
       except:
-          return JsonResponse({"error": "No data found for this pattern", "result": ""})
+          return JsonResponse({"error": "No data found for this pattern.", "result": ""})
       else: 
           return JsonResponse({"result": url, "error": ""})
