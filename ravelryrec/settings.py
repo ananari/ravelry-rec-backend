@@ -130,5 +130,6 @@ STATIC_URL = '/static/'
 CORS_ORIGIN_ALLOW_ALL = False
 CORS_ORIGIN_WHITELIST = [
     "http://localhost:3000",
-    "https://pure-peak-95236.herokuapp.com"
+    "https://pure-peak-95236.herokuapp.com",
+    "http://pure-peak-95236.herokuapp.com"
 ]
